@@ -13,11 +13,11 @@ Logging class allowing uniform output.
 ## example usage
   logger = logger.Logger(debug=1, log_file='out.txt', error_file='err.txt')
   
-  logger.put_msg('D', 'Debug message', name=__file__, line=68)
+  logger.put_msg('D', 'Debug message', name=\__file__, line=68)
   
-  logger.put_msg('I', 'Information message', name=__file__, line=69)
+  logger.put_msg('I', 'Information message', name=\__file__, line=69)
   
-  logger.put_msg('E', 'Error message', name=__file__, line=70)
+  logger.put_msg('E', 'Error message', name=\__file__, line=70)
 
 # images.py
 Image classes
