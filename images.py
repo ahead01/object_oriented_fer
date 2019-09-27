@@ -81,20 +81,20 @@ class CkImage(Image):
         self.emotion_dir = None
         self.emotion_file_name = None
 
-    def get_ck_img(self, emotion_dir, emotion_file, image_dir, subject_dir, inst_dir):
+    def get_ck_img(self, emotion_dir, emotion_file, image_dir, subject_id, inst_dir):
         '''Load the image information based on the emotion file.
         Used because images are loaded by scanning the emotion files'''
         self.image_dir = image_dir
         self.inst_dir = inst_dir
-        self.subject_dir = subject_dir
+        self.subject_id = subject_id
 
         self.emotion_dir = emotion_dir
         self.emotion_file_name = emotion_file
 
         self.image_file_name = re.sub('_emotion.txt', '.png', self.emotion_file_name)
 
-        self.image_file_path = f'{self.image_dir}/{self.subject_dir}/{self.inst_dir}'
-        self.emotion_file_path = f'{self.emotion_dir}/{self.subject_dir}/{self.inst_dir}'
+        self.image_file_path = f'{self.image_dir}/{self.subject_id}/{self.inst_dir}'
+        self.emotion_file_path = f'{self.emotion_dir}/{self.subject_id}/{self.inst_dir}'
 
         full_file_path = f'{self.emotion_file_path}/{self.emotion_file_name}'
         if os.path.isfile(full_file_path):

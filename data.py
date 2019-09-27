@@ -9,7 +9,7 @@ import os
 import re
 from logger import Logger, about as a1
 import sys
-import argparse
+import numpy as np
 from images import CkImage, about as a2
 
 
@@ -36,7 +36,7 @@ def about():
     a2()
 
 
-def load_ck_images():
+def load_ck_images(height, width, channels):
     BASE_DIR = DATA_DIR + '/ck/CK+/'
     EMOTION_DIR = BASE_DIR + 'Emotion_labels/Emotion/'
     IMG_DIR = BASE_DIR + 'extended-cohn-kanade-images/cohn-kanade-images/'
@@ -56,8 +56,9 @@ def load_ck_images():
             ret = img.get_ck_img(EMOTION_DIR, emotion_file_name, IMG_DIR, subject_dir, inst_dir)
             logger.put_msg('D', str(ret), name='Main')
             if ret:
-                img.load_image_from_file(height=128, width=128)
+                img.load_image_from_file(height=height, width=width)
                 img.class_name = LABEL_NAMES[img.emotion_class]
+                img.img_array = img.img_array[..., np.newaxis]
                 images.append(img)
     return images
 
