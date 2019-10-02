@@ -64,24 +64,27 @@ for idx in range(num_iterations):
     start = idx * validation_size
     end = start + validation_size
     test = data[start:end, :]
-    print(test.shape)
 
     x_test = test[:,2]
-    print(x_test[0].shape)
-    x_test = np.reshape(x_test, (validation_size, height, width, channels))
-    print(x_test.shape)
-    exit()
+    x_test = np.stack(x_test)
+
     y_test = test[:,1]
+    y_test = np.stack(y_test)
+
     train = np.concatenate((data[0:start,:], data[end:,:]), axis=0)
     x_train = train[:,2]
+    x_train = np.stack(x_train)
+
     y_train = train[:,1]
+    y_train = np.stack(y_train)
     print(x_train.shape)
     print(y_train.shape)
     print(x_test.shape)
     print(y_test.shape)
-    print(x_train[0])
-    exit()
+
     n_classes = len(np.unique(y_train))
+    print(n_classes)
+    exit()
     model = models.get_model(width, height, channels, n_classes)
     model = models.compile_model(model)
     model.fit(x_train, y_train, batch_size=1, epochs=10)
