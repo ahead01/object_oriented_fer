@@ -74,6 +74,67 @@ class Image():
         cv2.waitKey(0)
         cv2.destroyAllWindows()
 
+class JaffeImage(Image):
+    '''Class for the JAFFE images'''
+
+    def __init__(self, logger=None):
+        super().__init__(logger)
+
+    def get_jaffe_image(self, image_file_path, image_file_name):
+        '''Load the images from their diretory'''
+        self.image_file_path = image_file_path
+        self.image_file_name = image_file_name
+        patterns, image_labels = self.get_patterns()
+        self.class_labels = image_labels
+        file_name_ptr = re.compile('([A-Za-z][A-Za-z])\.([A-Za-z][A-Za-z]\d)\.(\d+)\.tiff')
+        full_file_path = f'{self.image_file_path}/{self.image_file_name}'
+        if os.path.isfile(full_file_path):
+            name_m = re.search(file_name_ptr, self.image_file_name)
+            if name_m:
+                self.subject_id = name_m.group(1)
+            else:
+                return 0
+
+            for idx, pattern in enumerate(patterns):
+                m = pattern.search(self.image_file_name)
+                if m:
+                    self.emotion_class = idx
+                    return 1
+            return 0
+        else:
+            return 0
+
+
+    def get_patterns(self, pattern_list=None):
+        '''Build the list of patterns.
+        Requires a list of pattern names'''
+        pattern_ref = {
+            'HA': re.compile('HA'),
+            'SA': re.compile('SA'),
+            'SU': re.compile('SU'),
+            'AN': re.compile('AN'),
+            'DI': re.compile('DI'),
+            'FE': re.compile('FE'),
+            'NE': re.compile('NE') 
+        }
+        patterns = []
+        labels = []
+        if pattern_list is None:
+            for patttern_name, pattern in pattern_ref.items():
+                patterns.append(pattern)
+                labels.append(patttern_name)
+        else:
+            for patttern_name in pattern_list:
+                try:
+                    patterns.append(pattern_ref[patttern_name])
+                except KeyError as e:
+                    self.logger.put_msg('E', f'Key error {patttern_name} in get_patterns.', name='images.py')
+                    raise e
+                labels.append(patttern_name)
+        return patterns, labels
+
+
+
 class CkImage(Image):
     '''Class for CK+ images'''
     def __init__(self, logger=None):

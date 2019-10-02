@@ -10,7 +10,7 @@ import re
 from logger import Logger, about as a1
 import sys
 import numpy as np
-from images import CkImage, about as a2
+from images import CkImage, about as a2, JaffeImage
 
 
 version = '1.0.0'
@@ -23,7 +23,7 @@ date       author    version    message
 '''
 
 DATA_DIR = os.environ['DATA_DIR']
-PROJECT_DIR = os.environ['PROJ_DIR']
+#PROJECT_DIR = os.environ['PROJ_DIR']
 
 
 def about():
@@ -34,6 +34,28 @@ def about():
     print('-------------------------------------------------')
     a1()
     a2()
+
+
+
+def load_jaffe_images(height, width, channels):
+    IMG_DIR = DATA_DIR + '/jaffedbase/jaffe'
+    logger = Logger(debug=1)
+    tiff_pattern = re.compile('\.tiff', re.IGNORECASE)
+
+    images = []
+    for file_name in os.listdir(IMG_DIR):
+        if tiff_pattern.search(file_name):
+            img = JaffeImage(logger)
+            ret = img.get_jaffe_image(IMG_DIR, file_name)
+            #logger.put_msg('D', str(ret), name='Main')
+            if ret:
+                img.load_image_from_file(height=height, width=width)
+                img.class_name = img.class_labels[img.emotion_class]
+                img.img_array = img.img_array[..., np.newaxis]
+                images.append(img)
+    return images
+    
+    
 
 
 def load_ck_images(height, width, channels):
