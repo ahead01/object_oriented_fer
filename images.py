@@ -18,9 +18,20 @@ change_history = '''
 date       author    version    message
 ###############################################################
 09/25/19   austin    1.0.0      Initial version
+10/15/19   austin    1.1.0      Adding face detection
 ###############################################################
 '''
 
+DATA_DIR = os.environ['DATA_DIR']
+PROJECT_DIR = os.environ['PROJ_DIR']
+
+CASCADE_DIR = PROJECT_DIR + '/FaceDetection/xml'
+FACE_XML = CASCADE_DIR + '/haarcascade_frontalface_default.xml'
+EYE_XML = CASCADE_DIR + '/haarcascade_eye.xml'
+
+
+FACE_CASCADE = cv2.CascadeClassifier(FACE_XML)
+EYE_CASCADE = cv2.CascadeClassifier(EYE_XML)
 
 def about():
     print('-------------------------------------------------')
@@ -44,7 +55,7 @@ class Image():
         else:
             self.logger = logger
 
-    def load_image_from_file(self, height=None, width=None, chan=None, read_type=cv2.IMREAD_GRAYSCALE):
+    def load_image_from_file(self, height=None, width=None, chan=None, read_type=cv2.IMREAD_GRAYSCALE, face=False, edge=True):
         '''Load the image using opencv imread. Deaults to IMREAD_GRAYSCALE
         Populates the image array from the image file.
         Raises an exception if the file is not defined.
@@ -52,12 +63,26 @@ class Image():
         full_path_to_image = f'{self.image_file_path}/{self.image_file_name}'
         if not os.path.isfile(full_path_to_image):
             raise Exception('Not a file', full_path_to_image)
-        self.img_array = cv2.imread(full_path_to_image, read_type)
+        img = cv2.imread(full_path_to_image, read_type)
+
+
+        if face:
+            face = FACE_CASCADE.detectMultiScale(img, 1.3, 5)
+            for (x,y,w,h) in face:
+                img = img[y:y+h, x:x+w]
 
         if None not in [height, width]:
-            self.img_array = cv2.resize(self.img_array, (height, width))
+            img = cv2.resize(img, (height, width))
+
+        if edge:
+            img = cv2.Laplacian(img, cv2.CV_64F)
+
+        self.img_array = img
 
         self.shape = self.img_array.shape
+
+
+
 
     def show_image(self, name=None):
         '''Use opencv to show the image.
@@ -115,7 +140,7 @@ class JaffeImage(Image):
             'AN': re.compile('AN'),
             'DI': re.compile('DI'),
             'FE': re.compile('FE'),
-            'NE': re.compile('NE') 
+            'NE': re.compile('NE')
         }
         patterns = []
         labels = []

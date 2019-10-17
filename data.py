@@ -7,6 +7,7 @@ Returns a list of Image objects
 
 import os
 import re
+import sys
 from logger import Logger, about as a1
 import sys
 import numpy as np
@@ -37,8 +38,11 @@ def about():
 
 
 
-def load_jaffe_images(height, width, channels):
-    IMG_DIR = DATA_DIR + '/jaffedbase/jaffe'
+def load_jaffe_images(height, width, channels, face=True, edge=True):
+    if sys.platform == 'win32':
+        IMG_DIR = DATA_DIR + '/jaffedbase/jaffe'
+    else:
+        IMG_DIR = DATA_DIR + '/jaffe'
     logger = Logger(debug=1)
     tiff_pattern = re.compile('\.tiff', re.IGNORECASE)
 
@@ -49,13 +53,13 @@ def load_jaffe_images(height, width, channels):
             ret = img.get_jaffe_image(IMG_DIR, file_name)
             #logger.put_msg('D', str(ret), name='Main')
             if ret:
-                img.load_image_from_file(height=height, width=width)
+                img.load_image_from_file(height=height, width=width, face=face, edge=edge)
                 img.class_name = img.class_labels[img.emotion_class]
                 img.img_array = img.img_array[..., np.newaxis]
                 images.append(img)
     return images
-    
-    
+
+
 
 
 def load_ck_images(height, width, channels):

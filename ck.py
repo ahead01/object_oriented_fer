@@ -9,6 +9,7 @@ import os
 from logger import Logger
 import numpy as np
 import models
+from images import Image
 
 version = '1.0.0'
 
@@ -79,14 +80,18 @@ for idx in range(num_iterations):
     print(x_test.shape)
     print(y_test.shape)
 
+    x_train = x_train.astype('float32') / 255
+    x_test = x_test.astype('float32') / 255
+
     n_classes = len(np.unique(y_train))
     print(n_classes)
-    exit()
+
     model = models.get_model(width, height, channels, n_classes)
     model = models.compile_model(model)
     model.fit(x_train, y_train, batch_size=1, epochs=10)
     test_scores = model.evaluate(x_test, y_test, verbose=0)
     results.append(test_scores)
+    exit()
 
 results = np.array(results)
 print(np.average(results, axis=0))
