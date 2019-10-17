@@ -123,6 +123,11 @@ results = np.array(results)
 print(np.average(results, axis=0))
 print(f'Total Elapsed Time:  {total_elapsed_time}')
 
+with open('results.txt', 'a+') as f:
+    f.write(f'''{num_subjects} images, n_epochs {n_epochs}, Validation Set Size: {validation_size}:
+        {np.average(results, axis=0)} \n''')
+    f.write('----------------------------------------------------\n\n')
+
 
 
 
