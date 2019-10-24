@@ -40,6 +40,34 @@ def about():
     print('Current Version:', version)
     print('-------------------------------------------------')
 
+def select_eyes(eyes):
+    if len(eyes) == 0:
+        return None
+    if len(eyes) > 2:
+        #eyes = top_eyes(eyes)
+        indxs = []
+        for eye in eyes:
+            indxs.append(eye[1])
+
+        val, idx1 = min((val, idx) for (idx, val) in enumerate(indxs))
+        indxs[idx1] = max(indxs)
+        val, idx2 = min((val, idx) for (idx, val) in enumerate(indxs))
+
+        tmp = [eyes[idx1], eyes[idx2]]
+        if tmp[0][0] > tmp[1][0]:
+            tmp2 = tmp
+            tmp = [tmp2[1], tmp2[0]]
+        eyes = tmp
+
+    if len(eyes) == 2:
+        if eyes[0][0] > eyes[1][0]:
+                tmp2 = eyes
+                eyes = [tmp2[1], tmp2[0]]
+        return eyes
+
+    if len(eyes) < 2:
+        return None
+
 class Image():
     '''Store image information'''
     def __init__(self, logger=None):
@@ -55,7 +83,7 @@ class Image():
         else:
             self.logger = logger
 
-    def load_image_from_file(self, height=None, width=None, chan=None, read_type=cv2.IMREAD_GRAYSCALE, face=False, edge=True):
+    def load_image_from_file(self, height=None, width=None, chan=None, read_type=cv2.IMREAD_GRAYSCALE, face=False, edge=False, eyes=False):
         '''Load the image using opencv imread. Deaults to IMREAD_GRAYSCALE
         Populates the image array from the image file.
         Raises an exception if the file is not defined.
@@ -73,15 +101,36 @@ class Image():
 
         if None not in [height, width]:
             img = cv2.resize(img, (height, width))
+        else:
+            height = 128
+            width = 128
+
+        if eyes:
+            eyes = EYE_CASCADE.detectMultiScale(img)
+            eyes = select_eyes(eyes)
+            if eyes is None:
+                raise Exception('Eyes not found')
+            tmp_eyes = []
+            for (ex,ey,ew,eh) in eyes:
+                eye_img = img[ey:ey+eh, ex:ex+ew]
+                eye_img = cv2.resize(eye_img, (int(height/2), int(width/2)))
+                tmp_eyes.append(eye_img)
+            eye_img = np.concatenate((tmp_eyes[0], tmp_eyes[1]), axis=0)
+            img = np.concatenate((eye_img, img), axis=1)
 
         if edge:
-            img = cv2.Laplacian(img, cv2.CV_64F)
+            #img = cv2.Laplacian(img, cv2.CV_64F)
+            img = cv2.Canny(img, 80, 200)
+
+        img = cv2.resize(img, (height, width))
 
         self.img_array = img
 
         self.shape = self.img_array.shape
 
 
+    def save_image(self, path=''):
+        cv2.imwrite(path + '' + self.image_file_name, self.img_array)
 
 
     def show_image(self, name=None):

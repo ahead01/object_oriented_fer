@@ -38,7 +38,7 @@ def about():
 
 
 
-def load_jaffe_images(height, width, channels, face=True, edge=True):
+def load_jaffe_images(height, width, channels, face=True, edge=True, eyes=False):
     if sys.platform == 'win32':
         IMG_DIR = DATA_DIR + '/jaffedbase/jaffe'
     else:
@@ -53,7 +53,11 @@ def load_jaffe_images(height, width, channels, face=True, edge=True):
             ret = img.get_jaffe_image(IMG_DIR, file_name)
             #logger.put_msg('D', str(ret), name='Main')
             if ret:
-                img.load_image_from_file(height=height, width=width, face=face, edge=edge)
+                try:
+                    img.load_image_from_file(height=height, width=width, face=face, edge=edge, eyes=eyes)
+                except Exception as e:
+                    print(e)
+                    continue
                 img.class_name = img.class_labels[img.emotion_class]
                 img.img_array = img.img_array[..., np.newaxis]
                 images.append(img)
